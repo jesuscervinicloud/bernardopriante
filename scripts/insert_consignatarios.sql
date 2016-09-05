@@ -1,14 +1,14 @@
 SET TERM ^ ;
-alter PROCEDURE INSERT_CONSIGNATARIOS
+ALTER PROCEDURE INSERT_CONSIGNATARIOS
 RETURNS (
     V_CLIENTE_ID integer,
     V_NOMBRE_CONSIG varchar(100),
-    V_TELEFONO1 VARCHAR(100),
-    V_TELEFONO2 VARCHAR(100) )
+    V_TELEFONO1 varchar(100),
+    V_TELEFONO2 varchar(100) )
 AS
-DECLARE VARIABLE lcComando VARCHAR(128);
+declare variable lccomando varchar(128);
 BEGIN
-      lcComando = 'SELECT CLIENTE_ID, NOMBRE_CONSIG, TELEFONO1, TELEFONO2 FROM DIRS_CLIENTES';
+      lcComando = 'SELECT CLIENTE_ID, NOMBRE_CONSIG, TELEFONO1, TELEFONO2 FROM DIRS_CLIENTES WHERE CLIENTE_ID IN (166102, 166159, 151966, 165793)';
 FOR EXECUTE STATEMENT lcComando
    ON EXTERNAL DATA SOURCE '/var/lib/firebird/2.5/data/AUDIMED.FDB'
    AS USER 'SYSDBA'
@@ -20,7 +20,8 @@ FOR EXECUTE STATEMENT lcComando
       :v_telefono2
       
    DO BEGIN
-      if (exists(select * from CONTACTO_CONTACTOS c where c.CONTACTO_ID = :v_cliente_id))
+      if (not exists(select * from CONTACTO_CONTACTOS c where 
+        c.NOMBRE = :v_nombre_consig and c.CONTACTO_ID = :v_cliente_id and c.TIPO_CONTACTO_CONTACTO_ID = 4748))
       then insert into CONTACTO_CONTACTOS 
           (contacto_contacto_id, contacto_id, nombre, titulo, puesto, telefono, comentarios, cumple_mes, cumple_dia, 
           celular, tipo_contacto_contacto_id) values 
@@ -28,11 +29,11 @@ FOR EXECUTE STATEMENT lcComando
           :v_telefono2, 4748);
       SUSPEND;
    END
- END^
+ ENd^
 SET TERM ; ^
 
 
 GRANT EXECUTE
- ON PROCEDURE INSERT_CONTACTOS TO  SYSDBA;
+ ON PROCEDURE INSERT_CONSIGNATARIOS TO  SYSDBA;
 
 
