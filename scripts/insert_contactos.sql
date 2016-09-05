@@ -8,7 +8,7 @@ DECLARE VARIABLE lcComando VARCHAR(128);
 BEGIN
       lcComando = 'SELECT CLIENTE_ID, NOMBRE FROM CLIENTES';
 FOR EXECUTE STATEMENT lcComando
-   ON EXTERNAL DATA SOURCE '/var/lib/firebird/2.5/data/audimed.fdb'
+   ON EXTERNAL DATA SOURCE '/var/lib/firebird/2.5/data/AUDIMED.FDB'
    AS USER 'SYSDBA'
    PASSWORD 'new_root'
    INTO
@@ -16,7 +16,7 @@ FOR EXECUTE STATEMENT lcComando
       :v_nombre
       
    DO BEGIN
-      if (exists(select * from CONTACTO_CONTACTOS c where 
+      if (not exists(select * from CONTACTO_CONTACTOS c where 
         c.NOMBRE = :v_nombre and c.CONTACTO_ID = :v_cliente_id and c.TIPO_CONTACTO_CONTACTO_ID = 4748))
       then insert into CONTACTO_CONTACTOS 
           (contacto_contacto_id, contacto_id, nombre, titulo, puesto, telefono, comentarios, cumple_mes, cumple_dia, 
