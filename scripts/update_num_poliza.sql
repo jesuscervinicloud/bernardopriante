@@ -1,0 +1,1 @@
+update LIBRES_INVENTARIOS set NUMERO_ULTIMA_POLIZA = cast( replace(NUMERO_ULTIMA_POLIZA,',','.') as integer) where NUMERO_ULTIMA_POLIZA not in ('Garantía','NO APLICA');

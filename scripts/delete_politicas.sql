@@ -1,0 +1,1 @@
+delete from POLITICAS_DSCTOS p where p.OBJETO_ID not in (4621,5917,5925,5926,6437,7223)
