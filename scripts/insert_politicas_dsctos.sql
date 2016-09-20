@@ -10,8 +10,9 @@ cast(replace(s.POSICION2, ',','.') as integer), cast(replace(replace(s.DSCTO2, '
 from  series_aparatos s inner join INVENTARIOS i on i.NO_CONTROL = s.SERI
 where s.TIPO_OBJETO_DSCTO <> '';
 
+
 insert into POLITICAS_DSCTOS
 select 'INV' tipo_objeto, i.INVENTARIO_ID objeto_id,  s.TIPO_OBJETO_DSCTO3, cast(replace(s.OBJETO_DSCTO_ID3, ',','.') as integer), 
-cast(replace(s.POSICION3, ',','.') as integer), cast(replace(replace(replace(s.DSCTO3, '0,', ''), ',','.'), '1', '100') as numeric(9,6))
+cast(replace(s.POSICION3, ',','.') as integer), cast(replace(replace(s.DSCTO3, '0,', ''), ',','.') as numeric(9,6))
 from  series_aparatos s inner join INVENTARIOS i on i.NO_CONTROL = s.SERI
 where s.TIPO_OBJETO_DSCTO <> '';
