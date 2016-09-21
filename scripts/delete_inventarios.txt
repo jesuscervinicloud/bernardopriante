@@ -1,0 +1,15 @@
+--Limpieza de la tabla para dejarla como de origen
+
+
+delete from libres_inventarios where INVENTARIO_ID not in (
+4627,
+4621,
+4838,
+5917,
+5925,
+5926,
+6072,
+6272,
+6300,
+6303,
+7223);
