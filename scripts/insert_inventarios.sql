@@ -1,6 +1,12 @@
-INSERT INTO LIBRES_INVENTARIOS (INVENTARIO_ID, MODELO_APARATO, CONTACTO, NUMERO_ULTIMA_POLIZA, CODIGO_CONTACTO, FECHA_DE_VENTA)
-SELECT TRIM(I.INVENTARIO_ID) INVENTARIO_ID, (SELECT FIRST 1 SUBSTRING(S.MODELO FROM 1 FOR 25) FROM SERIES_APARATOS S WHERE S.SERI = I.NO_CONTROL ) MODELO,
-  (select first 1 c.nombre from contacto_contactos c  where c.contacto_id = i.contacto_creador_id) nombre,
-  (SELECT FIRST 1 replace(TRIM(S.GARANTIA_POLIZA),'GarantÃ­a','Garantía') POLIZA FROM SERIES_APARATOS S WHERE S.SERI = I.NO_CONTROL ) POLIZA, i.contacto_creador_id,
-   I.VIGENCIA_INICIO
-FROM  INVENTARIOS I;
+insert into INVENTARIOS (no_control, contacto_creador_id, descripcion_interna, vigencia_inicio, vigencia_fin) 
+select  trim(s.SERI), s.ID_CLIENTE, s.CONTACTO,  
+cast( '20'|| substring(s.FECHA_DESDE from 7 for 2 )|| '-' || substring(s.FECHA_DESDE from 4 for 2 )|| '-'||  substring(s.FECHA_DESDE from 1 for 2 ) as date ),
+cast( '20'|| substring(s.FECHA_HASTA from 7 for 2 )|| '-' || substring(s.FECHA_HASTA from 4 for 2 )|| '-'||  substring(s.FECHA_HASTA from 1 for 2 ) as date )
+from SERIES_APARATOS s where s.FECHA_DESDE <>'';
+
+
+insert into INVENTARIOS (no_control, contacto_creador_id, descripcion_interna, vigencia_inicio, vigencia_fin) 
+select  trim(s.SERI), s.ID_CLIENTE, s.CONTACTO,  
+null,null
+from SERIES_APARATOS s where s.FECHA_DESDE ='';
+
