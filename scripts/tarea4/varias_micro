@@ -1,0 +1,65 @@
+select (select first 1 ad.CLAVE  from DESGLOSE_EN_DISCRETOS_VE dd 
+inner join ARTICULOS_DISCRETOS ad on ad.ART_DISCRETO_ID = dd.ART_DISCRETO_ID
+ where dd.DOCTO_VE_DET_ID = d.DOCTO_VE_DET_ID )  
+,trim(replace(replace(a.NOMBRE,'APARATO',''),'AUDITIVO','')) 
+,(case c.ZONA_CLIENTE_ID
+   when '9904' then  c.ZONA_CLIENTE_ID
+   when '9932' then 0
+  end
+ ),
+ (case c.ZONA_CLIENTE_ID
+   when '9904' then  c.nombre
+   when '9932' then 'Buscar_Zeus'
+  end
+ ),m.FECHA, m.TIPO_DOCTO
+from DOCTOS_VE m inner join DOCTOS_VE_DET d on m.DOCTO_VE_ID = d.DOCTO_VE_ID
+inner join CLIENTES c on c.CLIENTE_ID = m.CLIENTE_ID
+inner join ARTICULOS a on a.ARTICULO_ID = d.ARTICULO_ID
+where d.DOCTO_VE_DET_ID in (23430,29766)
+;
+
+
+select  ad.CLAVE  from DESGLOSE_EN_DISCRETOS_VE dd 
+inner join ARTICULOS_DISCRETOS ad on ad.ART_DISCRETO_ID = dd.ART_DISCRETO_ID
+ where dd.DOCTO_VE_DET_ID in (23430,29766)
+ ;
+ 
+ select * from DESGLOSE_EN_DISCRETOS_VE where DOCTO_VE_DET_ID in (23430,29766);
+ /*
+ Nota importante, para poder hacer la consulta que inserte en zeus.inventario entonces en la tabla de microsip.DESGLOSE_EN_DISCRETOS_VE
+ ya debe estar el valor en la tabla microsip.DOCTOS_VE_DET porque si no entonces no se puede encontrar el numero de serie del aparato
+ luego entonces el disparador deberia ejecutarse en la tabla microsip.DESGLOSE_EN_DISCRETOS_VE, consultar con BP
+ pedirle que haga una prueba y verificar las tablas
+ 
+ */
+ 
+ 
+ select ad.*from ARTICULOS_DISCRETOS ad
+inner join DESGLOSE_EN_DISCRETOS_VE dd on dd.ART_DISCRETO_ID = ad.ART_DISCRETO_ID
+inner join DOCTOS_VE_DET d on dd.DOCTO_VE_DET_ID = d.DOCTO_VE_DET_ID
+inner join DOCTOS_VE m on  m.DOCTO_VE_ID = d.DOCTO_VE_ID
+inner join ARTICULOS a on a.ARTICULO_ID = ad.ARTICULO_ID
+;
+
+
+
+select dd.*
+from ARTICULOS_DISCRETOS ad inner join DESGLOSE_EN_DISCRETOS_VE dd on ad.ART_DISCRETO_ID = dd.ART_DISCRETO_ID
+inner join DOCTOS_VE_DET d on d.DOCTO_VE_DET_ID = dd.DOCTO_VE_DET_ID inner join DOCTOS_VE m 
+on d.DOCTO_VE_ID = m.DOCTO_VE_ID inner join CLIENTES c on c.CLIENTE_ID = m.CLIENTE_ID
+inner join ARTICULOS a on a.ARTICULO_ID = ad.ARTICULO_ID
+where ad.CLAVE='R-308450' and m.TIPO_DOCTO = 'R';
+
+select * from ARTICULOS_DISCRETOS where CLAVE = 'R-308450';
+select * from DESGLOSE_EN_DISCRETOS_VE where ART_DISCRETO_ID = '31831';
+
+
+
+delete from DESGLOSE_EN_DISCRETOS_VE dd where dd.DOCTO_VE_DET_ID = 23672 and dd.ART_DISCRETO_ID=	31831;
+INSERT INTO DESGLOSE_EN_DISCRETOS_VE VALUES 
+((SELECT MAX(DD.DESGLOSE_DISCRETO_VE_ID)+1 FROM DESGLOSE_EN_DISCRETOS_VE DD)
+,23672,	31831,	1);
+
+
+SELECT * FROM SETTINGS;
+select * from INSERT_INV_CLIENTES_ZEUS(9898, 9);

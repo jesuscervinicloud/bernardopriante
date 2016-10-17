@@ -1,0 +1,9 @@
+select first 10  * from INVENTARIOS
+where VIGENCIA_INICIO > '2016-10-07' order by VIGENCIA_INICIO desc
+;
+
+select first 10 * from INVENTARIOS order by INVENTARIO_ID desc;
+select first 10 * from LIBRES_INVENTARIOS order by INVENTARIO_ID desc;
+select * from INVENTARIOS_CLIENTES;
+select * from POLITICAS_DSCTOS;
+
