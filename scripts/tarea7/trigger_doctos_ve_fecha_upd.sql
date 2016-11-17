@@ -6,7 +6,7 @@ DROP TRIGGER DOCTOS_VE_FECHA_AFT_UPD_1;
 
 */
 
-CREATE or alter TRIGGER DOCTOS_VE_FECHA_AFT_UPD_1 FOR DOCTOS_VE
+CREATE TRIGGER DOCTOS_VE_FECHA_AFT_UPD_1 FOR DOCTOS_VE
 AFTER UPDATE
 AS 
 /* TRIGGER QUE ACTUALIZA LOS CAMPOS DE VIGENCIAS DE INVENTARIOS Y FECHA VENTA DE LIBRES INVENTARIOS DE ZEUS
@@ -27,12 +27,12 @@ BEGIN
       :v_no_control      
     DO BEGIN
       --ACTUALIZAR INVENTARIOS.VIGENCIA_INICIO Y FIN
-      SELECT * FROM UPDATE_INVENTARIO_ZEUS(:v_no_control, '', NEW.FECHA) INTO :v_inventario_id;
+      execute procedure UPDATE_INVENTARIO_ZEUS(:v_no_control, '', NEW.FECHA);
     
       --ahora actualizamos las fechas de libres_inventarios
-      if (v_inventario_id <> 0) then
-        select * from UPDATE_LIB_INV_ZEUS(:v_inventario_id, NEW.FECHA) into :UPDATED_LI;
-      --select * from UPDATE_LIB_INV_ZEUS(19405, NEW.FECHA) into :UPDATED_LI;
+      
+        execute procedure UPDATE_LIB_INV_ZEUS(:v_no_control, NEW.FECHA) ;
+
       
 
     END
