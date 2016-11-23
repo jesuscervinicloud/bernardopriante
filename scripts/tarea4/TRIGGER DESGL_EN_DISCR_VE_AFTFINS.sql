@@ -6,7 +6,7 @@ DROP TRIGGER DESGL_EN_DISCR_VE_AFTFINS_0;
 
 */
 
-CREATE TRIGGER DESGL_EN_DISCR_VE_AFTFINS_0 FOR DESGLOSE_EN_DISCRETOS_VE
+CREATE or alter TRIGGER DESGL_EN_DISCR_VE_AFTFINS_0 FOR DESGLOSE_EN_DISCRETOS_VE
 AFTER INSERT
 AS -- insert trigger body here
 DECLARE VARIABLE v_no_control varchar(30);
@@ -59,20 +59,23 @@ select * from EXISTE_SERIE(:v_no_control) into :existe_serie;
 		if (v_tipo_docto='R') then begin
 	    	if (v_no_control <>'null' and CHAR_LENGTH(trim(v_no_control)) > 0 and v_no_control <> 'SIN SERIE'  ) then begin
 				if (v_contacto_creador=0) then BEGIN	
-		          SELECT M.FOLIO, M.TIPO_DOCTO FROM DOCTOS_VE M WHERE M.DOCTO_VE_ID = (SELECT L.DOCTO_VE_FTE_ID FROM  DOCTOS_VE_LIGAS L WHERE L.DOCTO_VE_DEST_ID = :v_docto_ve_id) into :v_folio, :v_tipo_docto_buscar;	          
+		          SELECT M.FOLIO, M.TIPO_DOCTO FROM DOCTOS_VE M WHERE M.DOCTO_VE_ID = (SELECT L.DOCTO_VE_FTE_ID FROM  DOCTOS_VE_LIGAS L WHERE L.DOCTO_VE_DEST_ID = :v_docto_ve_id) into :v_folio, :v_tipo_docto_buscar;
+	          
 		          --v_folio = 'ESP000013';
 		          --v_tipo_docto_buscar='P';
-		          select coalesce(R_CONTACTO,'NO SE ENCONTRO FOLIO COTIZACION' ), coalesce(R_CONTACTO_CREADOR,0 ) from busca_contacto_zeus(:v_folio, :v_tipo_docto_buscar) into :v_contacto, :v_contacto_creador;	
+		          select coalesce(R_CONTACTO,'NO SE ENCONTRO FOLIO COTIZACION' ), coalesce(R_CONTACTO_CREADOR,0 ) from busca_contacto_zeus(:v_folio, :v_tipo_docto_buscar) into :v_contacto, :v_contacto_creador;
+	
 		        END
-		        
-		       v_descripcion = v_no_control || ' / ' || v_modelo || ' / ' || v_fecha_venta  || ' / ' || 'Garantia'  || ' / ' || v_contacto  || ' / ' || v_contacto_creador;
+		        --no_control + / + modelo + / + fecha_venta + / + garantia_no_poliza + / + nombre + / + codigo_contacto + / + fechaultservserie + / + fechaultservcliente + / + FECULTSERVCOBRA + / + CALIFLLAMSERVCOBRA
+		       v_descripcion = v_no_control || ' / ' || v_modelo || ' / ' || v_fecha_venta  || ' / ' || 'Garantia'  || ' / ' || v_contacto  || ' / ' || v_contacto_creador  || ' /  /  /  /  '        ;
 	           select s."VALUE" from SETTINGS s where s.KEY = 'anios_garantia' into :v_anios_garantia ;
 	           --SIEMPRE DEBE INSERTAR EL ID CLIENTE SEA O NO SEA INSTITUCIONAL
 	           select p_intenvario_id from INSERT_INVENTARIOS_ZEUS (:v_no_control, :v_cliente_id, :v_descripcion, :v_fecha_venta, dateadd(-1 day to dateadd(:v_anios_garantia year to :v_fecha_venta) )) into :v_inventario_id;
 		       select P_INVOUT_ID from INSERT_LIB_INVENTARIOS_ZEUS (:v_inventario_id, :v_modelo, :v_contacto, 'Garantia',  :v_contacto_creador, :v_fecha_venta) into :v_lib_inventario_id;
 		       select * from INSERT_POLITICAS_DSCTOS_ZEUS (:v_inventario_id) into :v_politicas_dsctos_id1, :v_politicas_dsctos_id2, :v_politicas_dsctos_id3;
 		       --SIEMPRE DEBE INSERTAR EL ID CLIENTE SEA O NO SEA INSTITUCIONAL
-	           select * from INSERT_INV_CLIENTES_ZEUS (:v_cliente_id, :v_inventario_id) into :v_inventario_cliente_id;   
+	           select * from INSERT_INV_CLIENTES_ZEUS (:v_cliente_id, :v_inventario_id) into :v_inventario_cliente_id;
+   
 		    end
 		end
    end
