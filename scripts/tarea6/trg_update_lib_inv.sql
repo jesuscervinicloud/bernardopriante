@@ -5,8 +5,8 @@ before executing the create statement.
 DROP TRIGGER UPDATE_LIB_INV_AFTUPD_0;
 
 */
-
-CREATE or alter TRIGGER UPDATE_LIB_INV_AFTUPD_0 FOR TAREAS
+DROP TRIGGER UPDATE_LIB_INV_AFTUPD_0;
+CREATE TRIGGER UPDATE_LIB_INV_AFTUPD_0 FOR TAREAS
 AFTER UPDATE
 AS -- trigger que actualiza la tabla de libres inventtarios campos FECHAULTSERVSERIE y FECHAULTSERVCLIENTE
 declare variable v_cliente_publico char(1);
@@ -24,7 +24,8 @@ begin
  if (OLD.fecha_concluida <> NEW.fecha_concluida and  NEW.TIPO_ID=v_orden_servicio and NEW.ESTATUS_ID=v_estatus_terminado) then begin
    --armamos descripcion interna para inventarios
    select trim(i.NO_CONTROL) || ' / ' ||  trim(l.MODELO_APARATO)|| ' / ' || l.FECHA_DE_VENTA || ' / ' || l.NUMERO_ULTIMA_POLIZA  
-   || ' / ' || trim(coalesce(l.CONTACTO,'')) || ' / ' || trim(coalesce(l.CODIGO_CONTACTO,'')) || ' / ' || coalesce(l.FECHAULTSERVSERIE,'') || ' / ' || coalesce(l.FECHAULTSERVCLIENTE,'')
+   || ' / ' || trim(coalesce(l.CONTACTO,'')) || ' / ' || trim(coalesce(l.CODIGO_CONTACTO,'')) || ' / ' || coalesce(l.FECHAULTSERVSERIE,'') || ' / ' || coalesce(l.FECHAULTSERVCLIENTE,'')||
+   ' / ' || COALESCE(l.FECULTSERVCOBRA,'') || ' / ' || coalesce(l.CALIFLLAMSERCOBRA,'')
    from inventarios i inner join LIBRES_INVENTARIOS l on i.INVENTARIO_ID = l.INVENTARIO_ID where l.INVENTARIO_ID =NEW.INVENTARIO_ID into :v_descripcion;
   
    -- entonces actualizar tabla libres_inventarios
@@ -39,8 +40,10 @@ begin
      FOR EXECUTE STATEMENT 'select i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID =' || NEW.CLIENTE_ID
       into :v_inventario_id
       DO BEGIN
-       select trim(i.NO_CONTROL) || ' / ' ||  trim(l.MODELO_APARATO)|| ' / ' || l.FECHA_DE_VENTA || ' / ' || l.NUMERO_ULTIMA_POLIZA || ' / ' || coalesce(l.CONTACTO,'')|| ' / ' || coalesce(l.CODIGO_CONTACTO,'') || ' / ' || coalesce(l.FECHAULTSERVSERIE,'') || ' / ' || coalesce(l.FECHAULTSERVCLIENTE,'') 
-       from inventarios i inner join LIBRES_INVENTARIOS l on i.INVENTARIO_ID = l.INVENTARIO_ID where l.INVENTARIO_ID = :v_inventario_id into :v_descripcion;
+        select trim(i.NO_CONTROL) || ' / ' ||  trim(l.MODELO_APARATO)|| ' / ' || l.FECHA_DE_VENTA || ' / ' || l.NUMERO_ULTIMA_POLIZA  
+        || ' / ' || trim(coalesce(l.CONTACTO,'')) || ' / ' || trim(coalesce(l.CODIGO_CONTACTO,'')) || ' / ' || coalesce(l.FECHAULTSERVSERIE,'') || ' / ' || coalesce(l.FECHAULTSERVCLIENTE,'')||
+        ' / ' || COALESCE(l.FECULTSERVCOBRA,'') || ' / ' || coalesce(l.CALIFLLAMSERCOBRA,'')
+        from inventarios i inner join LIBRES_INVENTARIOS l on i.INVENTARIO_ID = l.INVENTARIO_ID where l.INVENTARIO_ID =:v_inventario_id into :v_descripcion;
 
        update INVENTARIOS set DESCRIPCION_INTERNA = :v_descripcion where INVENTARIO_ID = :v_inventario_id;
        v_descripcion = '';
