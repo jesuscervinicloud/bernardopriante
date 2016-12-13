@@ -31,7 +31,7 @@ declare variable v_docto_ve_id integer ;
 declare variable existe_serie char(1)='T';
 
 BEGIN
-insert into settings values ((select max(id)+1 from settings), current_timestamp, current_timestamp );
+insert into settings values ((select max(id)+1 from settings), 'DESGL_EN_DISCR_VE_AFTFINS_0', current_timestamp );
 
 	select 
 	coalesce(ad.CLAVE,'null')
