@@ -5,8 +5,8 @@ before executing the create statement.
 DROP TRIGGER DESGL_EN_DISCR_VE_AFTFINS_0;
 
 */
-DROP TRIGGER DESGL_EN_DISCR_VE_AFTFINS_0;
-CREATE TRIGGER DESGL_EN_DISCR_VE_AFTFINS_0 FOR DESGLOSE_EN_DISCRETOS_VE
+
+CREATE or alter TRIGGER DESGL_EN_DISCR_VE_AFTFINS_0 FOR DESGLOSE_EN_DISCRETOS_VE
 AFTER INSERT
 AS -- insert trigger body here
 DECLARE VARIABLE v_no_control varchar(30);
@@ -31,6 +31,8 @@ declare variable v_docto_ve_id integer ;
 declare variable existe_serie char(1)='T';
 
 BEGIN
+insert into settings values ((select max(id)+1 from settings), current_timestamp, current_timestamp );
+
 	select 
 	coalesce(ad.CLAVE,'null')
 	,c.CLIENTE_ID
@@ -54,6 +56,9 @@ BEGIN
 
 -- NOTA: AL PARERCER ESTA PONIENDO COMO FECHA VENTA EL VALOR ACTUAL DEL SISTEMA, AUNQUE YO SOLO TOMO LAS FECHAS QUE VIENEN NO LAS ESTA RESPETANDO
 -- LAS PRUEBAS CON BP SELECCIONA UNA FECHA DIFERENTE A HOY Y NO LAS RESPETA AL ALHORA DE INSERTAR 
+--ACTUALIZACION 12.12.2016.- cONSULTAR EN LA TABLA DE TEMPORAL DE SERIES_aCTUALIZAR SI EL NUMERO DE SERIE QUE EXISTA EN DICHA TABLA EXISTE EN ZEUS
+--SI EXISTE EN ZEUS SIGNIFICA QUE SE DEBE ACTUALIZAR EN ZEUS POR EL NUEVO QUE VIENE, DE LO CONTRARIO ENTONCES ES UNO NUEVO Y DEBE HACER LA INSERCION NORMAL
+
 select * from EXISTE_SERIE(:v_no_control) into :existe_serie;
    if (existe_serie ='F') then begin
 		if (v_tipo_docto='R') then begin
@@ -66,7 +71,8 @@ select * from EXISTE_SERIE(:v_no_control) into :existe_serie;
 		          select coalesce(R_CONTACTO,'NO SE ENCONTRO FOLIO COTIZACION' ), coalesce(R_CONTACTO_CREADOR,0 ) from busca_contacto_zeus(:v_folio, :v_tipo_docto_buscar) into :v_contacto, :v_contacto_creador;
 	
 		        END
-		        --no_control + / + modelo + / + fecha_venta + / + garantia_no_poliza + / + nombre + / + codigo_contacto + / + fechaultservserie + / + fechaultservcliente + / + FECULTSERVCOBRA + / + CALIFLLAMSERVCOBRA
+		        
+--no_control + / + modelo + / + fecha_venta + / + garantia_no_poliza + / + nombre + / + codigo_contacto + / + fechaultservserie + / + fechaultservcliente + / + FECULTSERVCOBRA + / + CALIFLLAMSERVCOBRA
 		       v_descripcion = v_no_control || ' / ' || v_modelo || ' / ' || v_fecha_venta  || ' / ' || 'Garantia'  || ' / ' || v_contacto  || ' / ' || v_contacto_creador  || ' /  /  /  /  '        ;
 	           select s."VALUE" from SETTINGS s where s.KEY = 'anios_garantia' into :v_anios_garantia ;
 	           --SIEMPRE DEBE INSERTAR EL ID CLIENTE SEA O NO SEA INSTITUCIONAL
