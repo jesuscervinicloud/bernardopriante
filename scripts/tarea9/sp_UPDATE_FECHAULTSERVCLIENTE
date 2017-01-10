@@ -1,0 +1,34 @@
+CREATE OR ALTER PROCEDURE UPDATE_FECHAULTSERVCLIENTE RETURNS (V_FECHA DATE, V_CONTACTO INTEGER)
+AS DECLARE lcComando varchar(5000);
+DECLARE VARIABLE V_FECHAULTSERVCLIENTE DATE;
+DECLARE VARIABLE V_CONTACTO_ID integer;
+declare variable v_descripcion varchar(500);
+declare variable v_inventario_id integer;
+BEGIN
+      -- NOTA: 1o hacer una prueba con los contactos 257068, 257328,257043, revisar y luego ya con todos
+      --lcComando = 'select  max(l.FECHAULTSERVCLIENTE), c.CONTACTO_id from INVENTARIOS i inner join LIBRES_INVENTARIOS l on i.INVENTARIO_ID = l.INVENTARIO_ID inner join INVENTARIOS_CLIENTES t on t.INVENTARIO_ID = i.INVENTARIO_ID inner join CONTACTO_CONTACTOS c on c.CONTACTO_ID = t.CONTACTO_ID where l.FECHAULTSERVCLIENTE is not null and c.CONTACTO_ID in (257068, 257328,257043) group by c.CONTACTO_ID';
+      lcComando = 'select  max(l.FECHAULTSERVCLIENTE), c.CONTACTO_id from INVENTARIOS i inner join LIBRES_INVENTARIOS l on i.INVENTARIO_ID = l.INVENTARIO_ID inner join INVENTARIOS_CLIENTES t on t.INVENTARIO_ID = i.INVENTARIO_ID inner join CONTACTO_CONTACTOS c on c.CONTACTO_ID = t.CONTACTO_ID where l.FECHAULTSERVCLIENTE is not null group by c.CONTACTO_ID';
+FOR EXECUTE STATEMENT lcComando
+      
+into :V_FECHAULTSERVCLIENTE, :V_CONTACTO_ID
+   DO BEGIN
+    update LIBRES_INVENTARIOS set FECHAULTSERVCLIENTE = :V_FECHAULTSERVCLIENTE where INVENTARIO_ID in (select i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID = :V_CONTACTO_ID );
+    
+      FOR EXECUTE STATEMENT 'select i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID =' || :V_CONTACTO_ID
+       into :v_inventario_id
+      DO BEGIN
+        select trim(i.NO_CONTROL) || ' / ' ||  trim(l.MODELO_APARATO)|| ' / ' || l.FECHA_DE_VENTA || ' / ' || l.NUMERO_ULTIMA_POLIZA  
+        || ' / ' || trim(coalesce(l.CONTACTO,'')) || ' / ' || trim(coalesce(l.CODIGO_CONTACTO,'')) || ' / ' || coalesce(l.FECHAULTSERVSERIE,'') || ' / ' || coalesce(l.FECHAULTSERVCLIENTE,'')
+||
+        ' / ' || COALESCE(l.FECULTSERVCOBRA,'') || ' / ' || coalesce(l.CALIFLLAMSERCOBRA,'')
+        from inventarios i inner join LIBRES_INVENTARIOS l on i.INVENTARIO_ID = l.INVENTARIO_ID where l.INVENTARIO_ID =:v_inventario_id into :v_descripcion;
+
+       update INVENTARIOS set DESCRIPCION_INTERNA = :v_descripcion where INVENTARIO_ID = :v_inventario_id;
+       v_descripcion = '';
+      END
+    V_CONTACTO = :V_CONTACTO_ID;
+    V_FECHA= :V_FECHAULTSERVCLIENTE;
+    SUSPEND;
+   END
+
+ END
