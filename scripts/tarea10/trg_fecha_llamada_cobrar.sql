@@ -12,7 +12,7 @@ declare V_CLAVESISTEMAANTERIOR varchar(10);
 declare V_CONTACTO_ID integer;
 
 begin
-  if (NEW.tipo_accion_id=4881)then begin
+  if (NEW.tipo_accion_id=(select s."VALUE" from SETTINGS s where s.KEY='TIPO_ACCION_ID'))then begin
     select * from es_cliente_publico(new.contacto_id) into :es_publico;
     if (es_publico='T') then begin
       update LIBRES_INVENTARIOS l set l.FECULTSERVCOBRA = NEW.FECHA, l.CALIFLLAMSERCOBRA = (select first 1 c.NOMBRE from CALIFICACION_ACCIONES c where c.CALIFICACION_ACCION_ID=NEW.calificacion_accion_id) where l.INVENTARIO_ID in (select distinct i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID = NEW.contacto_id );
