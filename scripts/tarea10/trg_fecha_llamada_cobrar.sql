@@ -8,8 +8,8 @@ declare v_contacto integer;
 declare es_publico char(1);
 declare variable v_descripcion varchar(500);
 declare variable v_inventario_id integer;
-declare V_CLAVESISTEMAANTERIOR varchar(10);
-declare V_CONTACTO_ID integer;
+declare V_CLAVESISTEMAANTERIOR varchar(20);
+declare V_CONTACTO_ID varchar(20);
 
 begin
   if (NEW.tipo_accion_id=(select s."VALUE" from SETTINGS s where s.KEY='TIPO_ACCION_ID'))then begin
@@ -33,8 +33,7 @@ begin
       --update INVENTARIOS i set i.DESCRIPCION_INTERNA ='nueva' where i.INVENTARIO_ID in (select distinct i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID = NEW.contacto_id );
     end
     else begin
-      select FIRST 1 coalesce(CLAVESISTEMAANTERIOR,C.CONTACTO_CONTACTO_ID) from LIBRES_CONTACTOS c where c.CONTACTO_CONTACTO_ID = NEW.contacto_id into :V_CONTACTO_ID;
-      
+      select FIRST 1 coalesce(CLAVESISTEMAANTERIOR, NEW.CONTACTO_CONTACTO_ID)  from LIBRES_CONTACTOS c where c.CONTACTO_CONTACTO_ID = NEW.CONTACTO_CONTACTO_ID  into :V_CONTACTO_ID;
       update LIBRES_INVENTARIOS l set l.FECULTSERVCOBRA = NEW.FECHA, l.CALIFLLAMSERCOBRA = (select first 1 c.NOMBRE from CALIFICACION_ACCIONES c where c.CALIFICACION_ACCION_ID=NEW.calificacion_accion_id) where l.INVENTARIO_ID in (select distinct i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID = :V_CONTACTO_ID );
     
       	FOR EXECUTE STATEMENT 'select i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID =' || :V_CONTACTO_ID
