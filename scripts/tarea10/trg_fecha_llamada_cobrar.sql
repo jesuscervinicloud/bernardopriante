@@ -1,14 +1,11 @@
-CREATE or alter TRIGGER FECHA_LLAMADA_COBRAR FOR acciones_tareas
-ACTIVE
-AFTER
-INSERT OR UPDATE 
-POSITION 0
+create or ALTER TRIGGER FECHA_LLAMADA_COBRAR ACTIVE
+AFTER INSERT OR UPDATE POSITION 0
 AS
 declare v_contacto integer;
 declare es_publico char(1);
 declare variable v_descripcion varchar(500);
 declare variable v_inventario_id integer;
-declare V_CLAVESISTEMAANTERIOR varchar(20);
+declare V_CLAVESISTEMAANTERIOR integer;
 declare V_CONTACTO_ID varchar(20);
 
 begin
@@ -33,12 +30,24 @@ begin
       --update INVENTARIOS i set i.DESCRIPCION_INTERNA ='nueva' where i.INVENTARIO_ID in (select distinct i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID = NEW.contacto_id );
     end
     else begin
-      select FIRST 1 coalesce(CLAVESISTEMAANTERIOR, NEW.CONTACTO_CONTACTO_ID)  from LIBRES_CONTACTOS c where c.CONTACTO_CONTACTO_ID = NEW.CONTACTO_CONTACTO_ID  into :V_CONTACTO_ID;
-      update LIBRES_INVENTARIOS l set l.FECULTSERVCOBRA = NEW.FECHA, l.CALIFLLAMSERCOBRA = (select first 1 c.NOMBRE from CALIFICACION_ACCIONES c where c.CALIFICACION_ACCION_ID=NEW.calificacion_accion_id) where l.INVENTARIO_ID in (select distinct i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID = :V_CONTACTO_ID );
-    
-      	FOR EXECUTE STATEMENT 'select i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID =' || :V_CONTACTO_ID
+      
+      select  
+case c.CLAVESISTEMAANTERIOR
+  when '' then NEW.CONTACTO_CONTACTO_ID
+  else coalesce(c.CLAVESISTEMAANTERIOR, NEW.CONTACTO_CONTACTO_ID)
+  end
+from LIBRES_CONTACTOS c where c.CONTACTO_CONTACTO_ID = NEW.CONTACTO_CONTACTO_ID  into :V_CONTACTO_ID;
+
+
+      
+      update LIBRES_INVENTARIOS l set l.FECULTSERVCOBRA = NEW.FECHA, l.CALIFLLAMSERCOBRA = (select first 1 c.NOMBRE from CALIFICACION_ACCIONES c where c.CALIFICACION_ACCION_ID=NEW.calificacion_accion_id) 
+      where l.CODIGO_CONTACTO = :V_CONTACTO_ID;
+      
+      
+      	FOR EXECUTE STATEMENT 'select l.INVENTARIO_ID from LIBRES_INVENTARIOS l where l.CODIGO_CONTACTO =' || '''' || :V_CONTACTO_ID || ''''
 	       into :v_inventario_id
 	      DO BEGIN
+	    
 	        select first 1 trim(i.NO_CONTROL) || ' / ' ||  trim(l.MODELO_APARATO)|| ' / ' || l.FECHA_DE_VENTA || ' / ' || l.NUMERO_ULTIMA_POLIZA  
 	        || ' / ' || trim(coalesce(l.CONTACTO,'')) || ' / ' || trim(coalesce(l.CODIGO_CONTACTO,'')) || ' / ' || coalesce(l.FECHAULTSERVSERIE,'') || ' / ' || coalesce(l.FECHAULTSERVCLIENTE,'')
 	||
@@ -47,12 +56,12 @@ begin
 	
 	       update INVENTARIOS set DESCRIPCION_INTERNA = :v_descripcion where INVENTARIO_ID = :v_inventario_id;
 	       v_descripcion = '';
+	      
 	      END  
         
-        
+       
     end
     
   end
 
 end
-
