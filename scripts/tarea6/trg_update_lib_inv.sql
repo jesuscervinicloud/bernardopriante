@@ -22,8 +22,9 @@ begin
            
   
             
- if (OLD.fecha_concluida <> NEW.fecha_concluida and  NEW.TIPO_ID=v_orden_servicio and NEW.ESTATUS_ID=v_estatus_terminado) then begin
-   -- 1.- Actualizamos lib_inventarios
+  if (((OLD.fecha_concluida <> NEW.fecha_concluida )or (OLD.fecha_concluida is null)) and  NEW.TIPO_ID=v_orden_servicio and NEW.ESTATUS_ID=v_estatus_terminado) then begin
+  
+  -- 1.- Actualizamos lib_inventarios
    update libres_inventarios set FECHAULTSERVSERIE = NEW.FECHA_INICIO where INVENTARIO_ID = NEW.INVENTARIO_ID;
    
    
@@ -83,4 +84,3 @@ con la nueva fecha de FECHAULTSERVSERIE
  end
  
 end
-
