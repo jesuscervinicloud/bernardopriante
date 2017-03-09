@@ -20,10 +20,13 @@ begin
     if (es_publico='T') then begin
     insert into settings values ((select max(s.id)+1 from settings s ), (select a.FECHA from ACCIONES_TAREAS a where a.TAREA_ID = :v_prev_tarea_id), 'es publico');
     
-    
-      update LIBRES_INVENTARIOS l set l.FECULTSERVCOBRA = (select a.FECHA from ACCIONES_TAREAS a where a.ACCION_TAREA_ID  = :v_prev_tarea_id), l.CALIFLLAMSERCOBRA = 
-      (select first 1 c.NOMBRE from CALIFICACION_ACCIONES c where c.CALIFICACION_ACCION_ID=(select a.calificacion_accion_id from ACCIONES_TAREAS a where a.ACCION_TAREA_ID = :v_prev_tarea_id)) 
-      where l.INVENTARIO_ID in (select distinct i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID = OLD.CONTACTO_ID );
+      if (:v_prev_tarea_id = 0) then 
+      	update LIBRES_INVENTARIOS l set l.FECULTSERVCOBRA = null, l.CALIFLLAMSERCOBRA = null 
+	      where l.INVENTARIO_ID in (select distinct i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID = OLD.CONTACTO_ID );
+      else
+        update LIBRES_INVENTARIOS l set l.FECULTSERVCOBRA = (select a.FECHA from ACCIONES_TAREAS a where a.ACCION_TAREA_ID  = :v_prev_tarea_id), l.CALIFLLAMSERCOBRA = 
+	      (select first 1 c.NOMBRE from CALIFICACION_ACCIONES c where c.CALIFICACION_ACCION_ID=(select a.calificacion_accion_id from ACCIONES_TAREAS a where a.ACCION_TAREA_ID = :v_prev_tarea_id)) 
+	      where l.INVENTARIO_ID in (select distinct i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID = OLD.CONTACTO_ID );
       -- obteniendo la descripcion interna
       FOR EXECUTE STATEMENT 'select i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID =' || (select a.CONTACTO_ID from ACCIONES_TAREAS a where a.ACCION_TAREA_ID = :v_prev_tarea_id)
        into :v_inventario_id
@@ -41,7 +44,10 @@ begin
     end
     else begin
       select FIRST 1 coalesce(CLAVESISTEMAANTERIOR, (select a.CONTACTO_CONTACTO_ID from ACCIONES_TAREAS a where a.ACCION_TAREA_ID = :v_prev_tarea_id))  from LIBRES_CONTACTOS c where c.CONTACTO_CONTACTO_ID = (select a.CONTACTO_CONTACTO_ID from ACCIONES_TAREAS a where a.ACCION_TAREA_ID = :v_prev_tarea_id)  into :V_CONTACTO_ID;
-      update LIBRES_INVENTARIOS l set l.FECULTSERVCOBRA = (select a.FECHA from ACCIONES_TAREAS a where a.ACCION_TAREA_ID = :v_prev_tarea_id), l.CALIFLLAMSERCOBRA = (select first 1 c.NOMBRE from CALIFICACION_ACCIONES c where c.CALIFICACION_ACCION_ID=(select a.CALIFICACION_ACCION_ID from ACCIONES_TAREAS a where a.ACCION_TAREA_ID = :v_prev_tarea_id)) where l.INVENTARIO_ID in (select distinct i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID = :V_CONTACTO_ID );
+      if (:v_prev_tarea_id = 0) then 
+         update LIBRES_INVENTARIOS l set l.FECULTSERVCOBRA = null, l.CALIFLLAMSERCOBRA = null where l.INVENTARIO_ID in (select distinct i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID = :V_CONTACTO_ID );
+      else
+         update LIBRES_INVENTARIOS l set l.FECULTSERVCOBRA = (select a.FECHA from ACCIONES_TAREAS a where a.ACCION_TAREA_ID = :v_prev_tarea_id), l.CALIFLLAMSERCOBRA = (select first 1 c.NOMBRE from CALIFICACION_ACCIONES c where c.CALIFICACION_ACCION_ID=(select a.CALIFICACION_ACCION_ID from ACCIONES_TAREAS a where a.ACCION_TAREA_ID = :v_prev_tarea_id)) where l.INVENTARIO_ID in (select distinct i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID = :V_CONTACTO_ID );
     
       	FOR EXECUTE STATEMENT 'select i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID =' || :V_CONTACTO_ID
 	       into :v_inventario_id
