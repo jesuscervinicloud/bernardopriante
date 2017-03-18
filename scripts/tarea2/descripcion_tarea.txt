@@ -1,0 +1,15 @@
+Tarea: Insertar los inventarios en la nueva base de datos de zeus provenientes de un archivo de excel.
+Descripcion: Lo que se debe hacer es tomar toda la informacion que conforma los inventarios que esta en el archivo de excel e insertarla en
+las tablas correspondientes: inventarios, libres innventarios, politicas descuentos e inventarios_clientes.
+
+Procedimiento: 
+0.- Se crea la tabla en la que se importaran los datos del excel usando el query, se le agrega un generador.
+1.- Se le agrega un generador a la tabla de inventarios porque si no no va a jalar usando el query generador_inventarios.sql
+3.- Se pasa importa la informacion a la BD zeus hacia la tabla series aparatos.
+4.- Se inserta la informacion en la tabla de Inventarios usando el query: insert_inventarios.sql
+5.- Se insertan la informacion en la tabla de libres_inventarios usando el query insert_libres_inventarios.sql
+6.- Se inserta la informacione  la tabla de politicas_dsctos usando el query insert_politicas_dsctos.sql
+7.- Se inserta la informacion en la tabla de inventarios_clientes usando el query insert_inventarios_clientes.sql
+8.- Se actualizan las fechas vigencica inicio y fin de la tabla de inventarios (opcional en caso de que las fechas no tengan formato yyy-mm-dd).
+
+
