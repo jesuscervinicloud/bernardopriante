@@ -12,7 +12,7 @@ AS -- trigger que actualiza la tabla de libres inventtarios campos FECHAULTSERVS
 declare variable v_cliente_publico char(1);
 declare variable v_estatus_terminado varchar(10);
 declare variable v_orden_servicio varchar(10);
-declare variable v_descripcion varchar(500);
+declare variable v_descripcion varchar(1000);
 declare variable v_inventario_id integer;
 DECLARE VARIABLE V_CODIGO_CONTACTO INTEGER;
 begin
@@ -23,14 +23,12 @@ begin
   
             
   if (((OLD.fecha_concluida <> NEW.fecha_concluida )or (OLD.fecha_concluida is null)) and  NEW.TIPO_ID=v_orden_servicio and NEW.ESTATUS_ID=v_estatus_terminado) then begin
-  
-  -- 1.- Actualizamos lib_inventarios
+   -- 1.- Actualizamos lib_inventarios
    update libres_inventarios set FECHAULTSERVSERIE = NEW.FECHA_INICIO where INVENTARIO_ID = NEW.INVENTARIO_ID;
    
    
-   --armamos descripcion interna para inventarios
-con la nueva fecha de FECHAULTSERVSERIE
-   select first 1 trim(i.NO_CONTROL) || ' / ' ||  trim(l.MODELO_APARATO)|| ' / ' || l.FECHA_DE_VENTA || ' / ' || l.NUMERO_ULTIMA_POLIZA  
+   --armamos descripcion interna para inventarioscon la nueva fecha de FECHAULTSERVSERIE
+   select FIRST 1 trim(i.NO_CONTROL) || ' / ' ||  trim(l.MODELO_APARATO)|| ' / ' || l.FECHA_DE_VENTA || ' / ' || l.NUMERO_ULTIMA_POLIZA  
    || ' / ' || trim(coalesce(l.CONTACTO,'')) || ' / ' || trim(coalesce(l.CODIGO_CONTACTO,'')) || ' / ' || coalesce(l.FECHAULTSERVSERIE,'') || ' / ' || coalesce(l.FECHAULTSERVCLIENTE,'')
 ||
    ' / ' || COALESCE(l.FECULTSERVCOBRA,'') || ' / ' || coalesce(l.CALIFLLAMSERCOBRA,'')
@@ -40,15 +38,14 @@ con la nueva fecha de FECHAULTSERVSERIE
    update INVENTARIOS set DESCRIPCION_INTERNA = :v_descripcion where INVENTARIO_ID = NEW.INVENTARIO_ID;
    v_descripcion = '';
    
-   if(v_cliente_publico = 'T') then begin
---Publico
+   if(v_cliente_publico = 'T') then begin--Publico
      update LIBRES_INVENTARIOS set FECHAULTSERVCLIENTE = NEW.FECHA_INICIO where INVENTARIO_ID in (select i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID = NEW.CLIENTE_ID );
      
 
      FOR EXECUTE STATEMENT 'select i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID =' || NEW.CLIENTE_ID
       into :v_inventario_id
       DO BEGIN
-        select first 1 trim(i.NO_CONTROL) || ' / ' ||  trim(l.MODELO_APARATO)|| ' / ' || l.FECHA_DE_VENTA || ' / ' || l.NUMERO_ULTIMA_POLIZA  
+        select FIRST 1 trim(i.NO_CONTROL) || ' / ' ||  trim(l.MODELO_APARATO)|| ' / ' || l.FECHA_DE_VENTA || ' / ' || l.NUMERO_ULTIMA_POLIZA  
         || ' / ' || trim(coalesce(l.CONTACTO,'')) || ' / ' || trim(coalesce(l.CODIGO_CONTACTO,'')) || ' / ' || coalesce(l.FECHAULTSERVSERIE,'') || ' / ' || coalesce(l.FECHAULTSERVCLIENTE,'')
 ||
         ' / ' || COALESCE(l.FECULTSERVCOBRA,'') || ' / ' || coalesce(l.CALIFLLAMSERCOBRA,'')
@@ -67,7 +64,7 @@ con la nueva fecha de FECHAULTSERVSERIE
      FOR EXECUTE STATEMENT 'select i.INVENTARIO_ID from INVENTARIOS_CLIENTES i where i.CONTACTO_ID =' || NEW.CLIENTE_ID
       into :v_inventario_id
       DO BEGIN
-        select first 1 trim(i.NO_CONTROL) || ' / ' ||  trim(l.MODELO_APARATO)|| ' / ' || l.FECHA_DE_VENTA || ' / ' || l.NUMERO_ULTIMA_POLIZA  
+        select FIRST 1 trim(i.NO_CONTROL) || ' / ' ||  trim(l.MODELO_APARATO)|| ' / ' || l.FECHA_DE_VENTA || ' / ' || l.NUMERO_ULTIMA_POLIZA  
         || ' / ' || trim(coalesce(l.CONTACTO,'')) || ' / ' || trim(coalesce(l.CODIGO_CONTACTO,'')) || ' / ' || coalesce(l.FECHAULTSERVSERIE,'') || ' / ' || coalesce(l.FECHAULTSERVCLIENTE,'')
 ||
         ' / ' || COALESCE(l.FECULTSERVCOBRA,'') || ' / ' || coalesce(l.CALIFLLAMSERCOBRA,'')
@@ -84,3 +81,4 @@ con la nueva fecha de FECHAULTSERVSERIE
  end
  
 end
+
