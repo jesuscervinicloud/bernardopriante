@@ -9,3 +9,5 @@ select count(*) from libres_inventarios;
 
 delete from POLITICAS_DSCTOS;
 select * from POLITICAS_DSCTOS;
+
+delete from SERIES_APARATOS;
