@@ -1,0 +1,47 @@
+CREATE OR ALTER PROCEDURE INS_CONTACTO_CONTACTOS_CLI RETURNS (V_CLIENTE_ID INTEGER, V_NOMBRE VARCHAR(100))
+AS DECLARE VARIABLE lcComando VARCHAR(128);
+declare variable path_bd_micro varchar(1000);
+declare variable username varchar(50);
+declare variable password varchar(50);
+/*
+TAREA: INSERCION Y ACTUALIZACION DE REGISTRO DE LA TABLA CONTACTO_CONTACTOS DE ZEUS EV.
+
+2.- ACTUALIZACION (PARTE 2 - CLIENTES PACIENTES)
+ACTUALIZAR EL CAMPO 'NOMBRE' DE LA TABLA CONTACTO_CONTACTOS CON EL VALOR DEL CAMPO 'NOMBRE' DE LA TABLA
+CLIENTES DE LA BD DE MICROSIP EV PARA TODOS LOS CONTACTOS CUYO CAMPO 
+CONTACTO_CONTACTOS.CONTACTO_ID = CLIENTES.CLIENTE_ID 
+Y QUE ADEMAS EL CAMPO TIPO 'TIPO_CONTACTO_CONTACTO_ID' = 4748.
+
+*/
+
+BEGIN
+      --lcComando = 'SELECT CLIENTE_ID, NOMBRE FROM CLIENTES';
+      lcComando = 'SELECT C.CLIENTE_ID, C.NOMBRE FROM CLIENTES C WHERE C.NOMBRE NOT LIKE ' || '''' || '%DRA.%' || '''' || ' AND C.NOMBRE NOT LIKE ' || '''' || '%DR.%' || '''';
+      select s."VALUE" from SETTINGS s where s.KEY = 'path_bd_microsip' into :path_bd_micro ;
+      select s."VALUE" from SETTINGS s where s.KEY = 'username' into :username ;
+      select s."VALUE" from SETTINGS s where s.KEY = 'password' into :password ;
+       
+     
+FOR EXECUTE STATEMENT lcComando
+   ON EXTERNAL DATA SOURCE path_bd_micro
+   AS USER username
+   PASSWORD password
+   INTO
+      :V_CLIENTE_ID,
+      :V_NOMBRE
+      
+   DO BEGIN
+      IF (NOT EXISTS(SELECT * FROM CONTACTO_CONTACTOS c WHERE 
+        c.NOMBRE = :V_NOMBRE AND c.CONTACTO_ID = :V_CLIENTE_ID AND c.TIPO_CONTACTO_CONTACTO_ID = 4748))
+      THEN INSERT INTO CONTACTO_CONTACTOS 
+          (contacto_contacto_id, contacto_id, nombre, titulo, puesto, telefono, comentarios, cumple_mes, cumple_dia, 
+          celular, tipo_contacto_contacto_id) VALUES 
+          ((SELECT MAX(c.CONTACTO_CONTACTO_ID)+1 FROM CONTACTO_CONTACTOS c) ,:V_CLIENTE_ID, :V_NOMBRE, NULL, NULL, NULL, NULL, NULL, NULL,
+          NULL, 4748);
+          
+
+     
+      SUSPEND;
+   END
+ END
+

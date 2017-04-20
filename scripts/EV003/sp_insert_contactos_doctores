@@ -1,0 +1,44 @@
+CREATE OR ALTER PROCEDURE INSERT_CONTACTOS_DOCTORES RETURNS (V_CLIENTE_ID INTEGER, V_NOMBRE VARCHAR(100))
+AS DECLARE VARIABLE lcComando VARCHAR(128);
+declare variable path_bd_micro varchar(1000);
+declare variable username varchar(50);
+declare variable password varchar(50);
+/*
+TAREA: INSERCION Y ACTUALIZACION DE REGISTRO DE LA TABLA CONTACTO_CONTACTOS DE ZEUS EV.
+
+1.- INSERCION (PARTE 1 - DOCTORES)
+PARA TODOS LOS REGISTROS DE CLIENTES EN MICROSIP CUYO NOMBRE EMPIECE CON LAS LETRAS 'DR.' O 'DRA.'
+SE DEBE CREAR UN NUEVO REGISTRO DE CONTACTO CON LAS MISMAS REGLAS QUE INDICA LA TAREA '1A-CRM ZEUS' EXCEPTO PARA EL
+CAMPO 'TIPO_CONTACTO_CONTACTO_ID' QUE EN ESTE CASO DEBERÁ TENER EL VALOR DE '5493'
+(SELECT * FROM CLIENTES C WHERE C.NOMBRE LIKE '%DRA.%' OR C.NOMBRE LIKE '%DR.%' --5493)
+
+*/
+
+BEGIN
+      lcComando = 'SELECT C.CLIENTE_ID, C.NOMBRE FROM CLIENTES C WHERE C.NOMBRE LIKE ' || '''' || '%DRA.%' || '''' || ' OR C.NOMBRE LIKE ' || '''' || '%DR.%' || '''';
+      --lcComando = 'SELECT C.CLIENTE_ID, C.NOMBRE FROM CLIENTES C WHERE C.NOMBRE LIKE ' || '''' || '%DRA.%' || '''' || ' OR C.NOMBRE LIKE ' || '''' || '%DR.%' || '''' || '';
+      select s."VALUE" from SETTINGS s where s.KEY = 'path_bd_microsip' into :path_bd_micro ;
+      select s."VALUE" from SETTINGS s where s.KEY = 'username' into :username ;
+      select s."VALUE" from SETTINGS s where s.KEY = 'password' into :password ;
+       
+     
+FOR EXECUTE STATEMENT lcComando
+   ON EXTERNAL DATA SOURCE path_bd_micro
+   AS USER username
+   PASSWORD password
+   INTO
+      :v_cliente_id,
+      :v_nombre
+      
+   DO BEGIN
+      IF (NOT EXISTS(SELECT * FROM CONTACTO_CONTACTOS c WHERE 
+        c.NOMBRE = :v_nombre AND c.CONTACTO_ID = :v_cliente_id AND c.TIPO_CONTACTO_CONTACTO_ID = 5493))
+      THEN INSERT INTO CONTACTO_CONTACTOS 
+          (contacto_contacto_id, contacto_id, nombre, titulo, puesto, telefono, comentarios, cumple_mes, cumple_dia, 
+          celular, tipo_contacto_contacto_id) VALUES 
+          ((SELECT MAX(c.CONTACTO_CONTACTO_ID)+1 FROM CONTACTO_CONTACTOS c) ,:v_cliente_id, :v_nombre, NULL, NULL, NULL, NULL, NULL, NULL,
+          NULL, 5493);
+      SUSPEND;
+   END
+ END
+
