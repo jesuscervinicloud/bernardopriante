@@ -29,6 +29,9 @@ declare variable v_descripcion_error varchar(500);
 declare variable v_anios_garantia integer = 1;
 declare variable v_docto_ve_id integer ;
 declare variable existe_serie char(1)='T';
+declare variable v_DIR_CLI_ID integer;
+declare variable updated char(1)='';
+
 
 BEGIN
 insert into settings values ((select max(id)+1 from settings), 'DESGL_EN_DISCR_VE_AFTFINS_0', current_timestamp );
@@ -69,7 +72,8 @@ select * from EXISTE_SERIE(:v_no_control) into :existe_serie;
 		          --v_folio = 'ESP000013';
 		          --v_tipo_docto_buscar='P';
 		          select coalesce(R_CONTACTO,'NO SE ENCONTRO FOLIO COTIZACION' ), coalesce(R_CONTACTO_CREADOR,0 ) from busca_contacto_zeus(:v_folio, :v_tipo_docto_buscar) into :v_contacto, :v_contacto_creador;
-	
+		          --actualizamos dirs_clientes
+			      select * from  UPD_DIRS_CLIENTES(:v_DIR_CLI_ID,:v_contacto_creador) into :updated;
 		        END
 		        
 --no_control + / + modelo + / + fecha_venta + / + garantia_no_poliza + / + nombre + / + codigo_contacto + / + fechaultservserie + / + fechaultservcliente + / + FECULTSERVCOBRA + / + CALIFLLAMSERVCOBRA

@@ -1,0 +1,13 @@
+CREATE OR ALTER PROCEDURE UPD_DIRS_CLIENTES (V_DIR_CLI_ID INTEGER, V_CONTACTO VARCHAR(50))
+ RETURNS (UPDATED char(1) )
+AS DECLARE VARIABLE id integer = 0;
+BEGIN
+UPDATED = 'F';
+update DIRS_CLIENTES d set d.GLN = :V_CONTACTO where d.DIR_CLI_ID = :V_DIR_CLI_ID returning d.DIR_CLI_ID into :id;
+
+IF (id <> 0) then
+  UPDATED='T';
+
+  
+suspend;
+END
