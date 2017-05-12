@@ -29,12 +29,12 @@ declare variable v_descripcion_error varchar(500);
 declare variable v_anios_garantia integer = 1;
 declare variable v_docto_ve_id integer ;
 declare variable existe_serie char(1)='T';
-declare variable v_DIR_CLI_ID integer;
+declare variable v_DIR_CONSIG_ID integer;
 declare variable updated char(1)='';
 
 
 BEGIN
-insert into settings values ((select max(id)+1 from settings), 'DESGL_EN_DISCR_VE_AFTFINS_0', current_timestamp );
+--insert into settings values ((select max(id)+1 from settings), 'DESGL_EN_DISCR_VE_AFTFINS_0', current_timestamp );
 
 	select 
 	coalesce(ad.CLAVE,'null')
@@ -55,7 +55,7 @@ insert into settings values ((select max(id)+1 from settings), 'DESGL_EN_DISCR_V
 	inner join DOCTOS_VE_DET d on d.DOCTO_VE_DET_ID = dd.DOCTO_VE_DET_ID inner join DOCTOS_VE m on m.DOCTO_VE_ID = d.DOCTO_VE_ID
 	inner join CLIENTES c on c.CLIENTE_ID = m.CLIENTE_ID inner join ARTICULOS a on a.ARTICULO_ID = ad.ARTICULO_ID
 	where dd.DESGLOSE_DISCRETO_VE_ID = NEW.DESGLOSE_DISCRETO_VE_ID 
-	into :v_no_control,:v_cliente_id,:v_modelo,:v_fecha_venta, :v_contacto_creador, :v_contacto, :v_tipo_docto, :v_docto_ve_id, :v_DIR_CLI_ID;
+	into :v_no_control,:v_cliente_id,:v_modelo,:v_fecha_venta, :v_contacto_creador, :v_contacto, :v_tipo_docto, :v_docto_ve_id, :v_DIR_CONSIG_ID;
 
 -- NOTA: AL PARERCER ESTA PONIENDO COMO FECHA VENTA EL VALOR ACTUAL DEL SISTEMA, AUNQUE YO SOLO TOMO LAS FECHAS QUE VIENEN NO LAS ESTA RESPETANDO
 -- LAS PRUEBAS CON BP SELECCIONA UNA FECHA DIFERENTE A HOY Y NO LAS RESPETA AL ALHORA DE INSERTAR 
@@ -73,7 +73,7 @@ select * from EXISTE_SERIE(:v_no_control) into :existe_serie;
 		          --v_tipo_docto_buscar='P';
 		          select coalesce(R_CONTACTO,'NO SE ENCONTRO FOLIO COTIZACION' ), coalesce(R_CONTACTO_CREADOR,0 ) from busca_contacto_zeus(:v_folio, :v_tipo_docto_buscar) into :v_contacto, :v_contacto_creador;
 		          --actualizamos dirs_clientes
-			      select * from  UPD_DIRS_CLIENTES(:v_DIR_CLI_ID,:v_contacto_creador) into :updated;
+			      select * from  UPD_DIRS_CLIENTES(:v_DIR_CONSIG_ID,:v_contacto_creador) into :updated;
 		        END
 		        
 --no_control + / + modelo + / + fecha_venta + / + garantia_no_poliza + / + nombre + / + codigo_contacto + / + fechaultservserie + / + fechaultservcliente + / + FECULTSERVCOBRA + / + CALIFLLAMSERVCOBRA
