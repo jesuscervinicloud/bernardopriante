@@ -1,0 +1,29 @@
+/*.- Adicionalmente, actualizar el campo "20-Notas" de la tabla "clientes" en Microsip (Escucha y Vive) 
+con el valor que se obtiene a partir del campo "Cliente Matriz-ID" de la tabla "clientes complementos" 
+ligado a la tabla clientes de Microsiip), el valor actualizar en clientes campo "20notas" será el del campo "2nombre".
+En caso de que en el campo "20notas" ya tenga valor, agregarle el valor obtenido
+*/
+
+select  (select c.NOMBRE from CLIENTES c where c.CLIENTE_ID = (select first 1 P_CLIENTE_MATRIZ_ID from GET_CLIENTE_MATRIZ_ID(282421))) 
+from clientes c where c.cliente_id = 282421;
+
+select c.NOMBRE from CLIENTES c where c.CLIENTE_ID = (select first 1 P_CLIENTE_MATRIZ_ID from GET_CLIENTE_MATRIZ_ID(282421)) ;
+
+select (select c.NOMBRE from CLIENTES c where c.CLIENTE_ID = (select first 1 P_CLIENTE_MATRIZ_ID from GET_CLIENTE_MATRIZ_ID(282421))), coalesce(c.NOTAS, ' VACIO ' ) notas,
+(select c.NOMBRE from CLIENTES c where c.CLIENTE_ID = (select first 1 P_CLIENTE_MATRIZ_ID from GET_CLIENTE_MATRIZ_ID(282421))) || ' ' || coalesce(c.NOTAS, '' )
+from CLIENTES c where c.CLIENTE_ID = 282421;
+
+select * from GET_CLIENTE_MATRIZ_ID(282421);
+
+update CLIENTES c set c.NOTAS = (select c.NOMBRE from CLIENTES c where c.CLIENTE_ID = (select first 1 P_CLIENTE_MATRIZ_ID from GET_CLIENTE_MATRIZ_ID(282421))) || ' ' || coalesce(c.NOTAS, '' )
+where c.CLIENTE_ID = 282421;
+update CLIENTES c set c.NOTAS = null;
+select u.V_CLIENTE_ID, u.V_NOMBRE from UPDATE_NOTAS_CLIENTES u where u.V_CLIENTE_ID = 282421;
+select * from UPDATE_NOTAS_CLIENTES u;
+select notas from CLIENTES where cliente_id =282421;
+
+select count(*) from CLIENTES c where c.NOTAS is null;
+select count(*) from CLIENTES c where c.NOTAS is null;
+
+select c.CLIENTE_ID, c.NOTAS from CLIENTES c where c.NOTAS is not null;
+select count(*) from clientes;
