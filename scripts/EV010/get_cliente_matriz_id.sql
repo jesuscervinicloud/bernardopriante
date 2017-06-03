@@ -10,11 +10,12 @@ into :V_CLIENTE_ID
    DO BEGIN
    V_NOMBRE = null;
    select d.NOMBRE from CLIENTES d where d.CLIENTE_ID = (select first 1 P_CLIENTE_MATRIZ_ID from GET_CLIENTE_MATRIZ_ID(:V_CLIENTE_ID)) into :V_NOMBRE;
-   if (:V_NOMBRE is not null) then 
+--   if (:V_NOMBRE is not null) then 
       --V_NOMBRE = 'not nulo';
-      update CLIENTES c set c.NOTAS = :V_NOMBRE  || ' ' || coalesce(c.NOTAS, '' ) where c.CLIENTE_ID = :V_CLIENTE_ID;
+      update CLIENTES c set c.NOTAS = coalesce(:V_NOMBRE, 'nulo' )  || ' ' || coalesce(c.NOTAS, '' ) where c.CLIENTE_ID = :V_CLIENTE_ID;
      
    SUSPEND;
    END
 
  END
+
