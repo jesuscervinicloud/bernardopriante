@@ -10,13 +10,29 @@ select first 500  c.CLIENTE_ID as "1v1", c.NOMBRE as "1v2",  tc.NOMBRE AS "1v3",
 ,(case
             when FECHA_PRIMERA_COTIZACION.VENDEDOR is null then (case
             	when CITA_PRIMERA_VEZ.R_USUARIO_RESPONSABLE is null then null
-            	else (select * from VENDEDORES v where v.VENDEDOR_ID = cita_primera_vez.vendedor_id)
+            	else (select first 1 v.NOMBRE from VENDEDORES v where v.VENDEDOR_ID = cita_primera_vez.vendedor_id)
           		end)
             else FECHA_PRIMERA_COTIZACION.VENDEDOR
           end) as "1v14_1"
+, FECHA_PRIMER_PEDIDO.FECHA as "1v15", FECHA_PRIMER_PEDIDO.FOLIO as "1v16", FECHA_PRIMER_PEDIDO.TIENE_PEDIDO as "1v17"
+, FECHA_PRIMER_REMISION.FECHA as "1v18", FECHA_PRIMER_REMISION.FOLIO as "1v19",FECHA_PRIMER_REMISION.VENDEDOR AS "1v20", FECHA_PRIMER_REMISION.TIENE_REMISION as "1v21"
+
 from CLIENTES c
 left join CITA_PRIMERA_VEZ(c.CLIENTE_ID) on 1=1 inner join TIPOS_CLIENTES tc on tc.TIPO_CLIENTE_ID = c.TIPO_CLIENTE_ID
 left join CLIENTE_MATRIZ(c.CLIENTE_ID) on 1=1 left join FECHA_PRIMERA_COTIZACION(c.CLIENTE_ID) on 1=1
-inner join VENDEDORES v on v.VENDEDOR_ID=cita_primera_vez.vendedor_id where c.cliente_id = 10405
+inner join VENDEDORES v on v.VENDEDOR_ID=cita_primera_vez.vendedor_id 
+left join FECHA_PRIMER_PEDIDO(c.CLIENTE_ID) on 1=1
+left join FECHA_PRIMER_REMISION(c.CLIENTE_ID) on 1=1
+where c.CLIENTE_ID in (261499, 260716, 25876,10753,10757,10761,10765,261805,10769,10773)
 ;
+
+
+
+
+
+
+
+
+
+
 

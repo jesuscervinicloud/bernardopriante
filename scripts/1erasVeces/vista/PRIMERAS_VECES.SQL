@@ -1,5 +1,5 @@
 
-CREATE VIEW PRIMERAS_VECES ("1v1","1v2","1v3","1v4","1v5","1v6","1v7","1v8","1v9","1v10","1v11","1v12","1v13","1v14","1v14_1") AS   select c.CLIENTE_ID as "1v1", c.NOMBRE as "1v2",  tc.NOMBRE AS "1v3", CLIENTE_MATRIZ.R_NOMBRE AS "1v4"
+CREATE VIEW PRIMERAS_VECES ("1v1","1v2","1v3","1v4","1v5","1v6","1v7","1v8","1v9","1v10","1v11","1v12","1v13","1v14","1v14_1","1v15","1v16","1v17","1v18","1v19","1v20","1v21") AS  select  c.CLIENTE_ID as "1v1", c.NOMBRE as "1v2",  tc.NOMBRE AS "1v3", CLIENTE_MATRIZ.R_NOMBRE AS "1v4"
 ,CITA_PRIMERA_VEZ.R_PRIMERA_VEZ AS "1v5", CITA_PRIMERA_VEZ.R_FECHA_INICIAL as "1v6"
 ,CITA_PRIMERA_VEZ.R_USUARIO_RESPONSABLE AS "1v7", c.FECHA_HORA_CREACION as "1v8"
 ,('M'|| extract(year from c.FECHA_HORA_CREACION) || substring(100+extract(month from c.FECHA_HORA_CREACION) from 2 for 2)) as "1v9"
@@ -11,13 +11,17 @@ CREATE VIEW PRIMERAS_VECES ("1v1","1v2","1v3","1v4","1v5","1v6","1v7","1v8","1v9
 ,(case
             when FECHA_PRIMERA_COTIZACION.VENDEDOR is null then (case
             	when CITA_PRIMERA_VEZ.R_USUARIO_RESPONSABLE is null then null
-            	else 'BUSCAR'
+            	else (select first 1 v.NOMBRE from VENDEDORES v where v.VENDEDOR_ID = cita_primera_vez.vendedor_id)
           		end)
             else FECHA_PRIMERA_COTIZACION.VENDEDOR
           end) as "1v14_1"
+, FECHA_PRIMER_PEDIDO.FECHA as "1v15", FECHA_PRIMER_PEDIDO.FOLIO as "1v16", FECHA_PRIMER_PEDIDO.TIENE_PEDIDO as "1v17"
+, FECHA_PRIMER_REMISION.FECHA as "1v18", FECHA_PRIMER_REMISION.FOLIO as "1v19",FECHA_PRIMER_REMISION.VENDEDOR AS "1v20", FECHA_PRIMER_REMISION.TIENE_REMISION as "1v21"
+
 from CLIENTES c
 left join CITA_PRIMERA_VEZ(c.CLIENTE_ID) on 1=1 inner join TIPOS_CLIENTES tc on tc.TIPO_CLIENTE_ID = c.TIPO_CLIENTE_ID
 left join CLIENTE_MATRIZ(c.CLIENTE_ID) on 1=1 left join FECHA_PRIMERA_COTIZACION(c.CLIENTE_ID) on 1=1
-
-;
+inner join VENDEDORES v on v.VENDEDOR_ID=cita_primera_vez.vendedor_id 
+left join FECHA_PRIMER_PEDIDO(c.CLIENTE_ID) on 1=1
+left join FECHA_PRIMER_REMISION(c.CLIENTE_ID) on 1=1;
 

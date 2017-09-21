@@ -23,7 +23,7 @@ for EXECUTE STATEMENT v_consulta
    INTO :folio, :fecha, :v_vendedor_id
    do begin      
 	 es_familia_aparato = 'F';
-     select resultado from ES_FAMILIA_APARATO(:folio, :P_CLIENTE_ID, 2) into :es_familia_aparato;
+     select resultado from ES_FAMILIA_APARATO(:folio, :P_CLIENTE_ID) into :es_familia_aparato;
      if (es_familia_aparato='T')then begin
 	    tiene_cotizacion = 1;
         select v.NOMBRE from VENDEDORES v where v.VENDEDOR_ID=:v_vendedor_id into :vendedor;

@@ -1,0 +1,23 @@
+select  distinct d.ARTICULO_ID from DCDOCTOS_PDV m inner join DCDOCTOS_PDV_DET d on m.DOCTO_PV_ID=d.DOCTO_PV_ID where m.TIPO_DOCTO = 'C' and m.ESTATUS not in ('C') and  m.CLIENTE_ID = 254976 ; 
+
+--select  list (distinct  '''' || d.ARTICULO_ID || '''' )  from DCDOCTOS_PDV m inner join DCDOCTOS_PDV_DET d on m.DOCTO_PV_ID=d.DOCTO_PV_ID where m.TIPO_DOCTO = 'C' and m.ESTATUS not in ('C') and  m.CLIENTE_ID = 254976 ; 
+--select list (distinct  '''' ||  d.ARTICULO_ID || ''''   ) from DCDOCTOS_PDV m inner join DCDOCTOS_PDV_DET d on m.DOCTO_PV_ID=d.DOCTO_PV_ID where m.TIPO_DOCTO ='C' and m.ESTATUS not in ('C' ) and  m.CLIENTE_ID = 254976;
+
+select distinct m.FECHA, m.FOLIO from DCDOCTOS_PDV m inner join DCDOCTOS_PDV_DET d on m.DOCTO_PV_ID=d.DOCTO_PV_ID
+where m.TIPO_DOCTO = 'C' and m.ESTATUS not in ('C') and  m.CLIENTE_ID = 254976 
+; 
+
+
+
+select *  from ARTICULOS a where a.ARTICULO_ID  in (1843,
+1858,
+1915,
+1924,
+3456,
+3683,
+3752,
+27919);
+
+
+select m.FOLIO, d.ARTICULO_ID  from DCDOCTOS_PDV m inner join DCDOCTOS_PDV_DET d on m.DOCTO_PV_ID=d.DOCTO_PV_ID
+where m.TIPO_DOCTO = 'C' and m.ESTATUS not in ('C') and  m.CLIENTE_ID = 254976 and m.FOLIO= 'ESP000020' group by m.FOLIO, d.ARTICULO_ID ;
