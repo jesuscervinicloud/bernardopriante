@@ -1,3 +1,4 @@
+SET TERM ^ ;
 create or ALTER TRIGGER FECHA_LLAMADA_COBRAR ACTIVE
 AFTER INSERT OR UPDATE POSITION 0
 AS
@@ -21,7 +22,7 @@ begin
         || ' / ' || trim(coalesce(l.CONTACTO,'')) || ' / ' || trim(coalesce(l.CODIGO_CONTACTO,'')) || ' / ' || coalesce(l.FECHAULTSERVSERIE,'') || ' / ' || coalesce(l.FECHAULTSERVCLIENTE,'')
 ||
         ' / ' || COALESCE(l.FECULTSERVCOBRA,'') || ' / ' || coalesce(l.CALIFLLAMSERCOBRA,'')
-        from inventarios i inner join LIBRES_INVENTARIOS l on i.INVENTARIO_ID = l.INVENTARIO_ID where l.INVENTARIO_ID =:v_inventario_id into :v_descripcion;
+        from inventarios i inner join LIBRES_INVENTARIOS l on i.INVENTARIO_ID = l.INVENTARIO_ID where l.INVENTARIO_ID =:v_inventario_id and l.CODIGO_CONTACTO = new.contacto_id into :v_descripcion;
 
        update INVENTARIOS set DESCRIPCION_INTERNA = :v_descripcion where INVENTARIO_ID = :v_inventario_id;
        v_descripcion = '';
@@ -44,24 +45,25 @@ from LIBRES_CONTACTOS c where c.CONTACTO_CONTACTO_ID = NEW.CONTACTO_CONTACTO_ID 
       where l.CODIGO_CONTACTO = :V_CONTACTO_ID;
       
       
-      	FOR EXECUTE STATEMENT 'select l.INVENTARIO_ID from LIBRES_INVENTARIOS l where l.CODIGO_CONTACTO =' || '''' || :V_CONTACTO_ID || ''''
-	       into :v_inventario_id
-	      DO BEGIN
-	    
-	        select first 1 trim(i.NO_CONTROL) || ' / ' ||  trim(l.MODELO_APARATO)|| ' / ' || l.FECHA_DE_VENTA || ' / ' || l.NUMERO_ULTIMA_POLIZA  
-	        || ' / ' || trim(coalesce(l.CONTACTO,'')) || ' / ' || trim(coalesce(l.CODIGO_CONTACTO,'')) || ' / ' || coalesce(l.FECHAULTSERVSERIE,'') || ' / ' || coalesce(l.FECHAULTSERVCLIENTE,'')
-	||
-	        ' / ' || COALESCE(l.FECULTSERVCOBRA,'') || ' / ' || coalesce(l.CALIFLLAMSERCOBRA,'')
-	        from inventarios i inner join LIBRES_INVENTARIOS l on i.INVENTARIO_ID = l.INVENTARIO_ID where l.INVENTARIO_ID =:v_inventario_id into :v_descripcion;
-	
-	       update INVENTARIOS set DESCRIPCION_INTERNA = :v_descripcion where INVENTARIO_ID = :v_inventario_id;
-	       v_descripcion = '';
-	      
-	      END  
+        FOR EXECUTE STATEMENT 'select l.INVENTARIO_ID from LIBRES_INVENTARIOS l where l.CODIGO_CONTACTO =' || '''' || :V_CONTACTO_ID || ''''
+         into :v_inventario_id
+        DO BEGIN
+      
+          select first 1 trim(i.NO_CONTROL) || ' / ' ||  trim(l.MODELO_APARATO)|| ' / ' || l.FECHA_DE_VENTA || ' / ' || l.NUMERO_ULTIMA_POLIZA  
+          || ' / ' || trim(coalesce(l.CONTACTO,'')) || ' / ' || trim(coalesce(l.CODIGO_CONTACTO,'')) || ' / ' || coalesce(l.FECHAULTSERVSERIE,'') || ' / ' || coalesce(l.FECHAULTSERVCLIENTE,'')
+  ||
+          ' / ' || COALESCE(l.FECULTSERVCOBRA,'') || ' / ' || coalesce(l.CALIFLLAMSERCOBRA,'')
+          from inventarios i inner join LIBRES_INVENTARIOS l on i.INVENTARIO_ID = l.INVENTARIO_ID where l.INVENTARIO_ID =:v_inventario_id and l.CODIGO_CONTACTO = new.contacto_id into :v_descripcion;
+  
+         update INVENTARIOS set DESCRIPCION_INTERNA = :v_descripcion where INVENTARIO_ID = :v_inventario_id;
+         v_descripcion = '';
+        
+        END  
         
        
     end
     
   end
 
-end
+end^
+SET TERM ; ^
